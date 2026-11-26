@@ -79,12 +79,12 @@ public class RecursoController {
             String asignatura,
             String autor,
             LocalDateTime fechaSubida,
-            long puntajeNeto,
-            long cantidadVotos,
-            Short votoUsuarioActual
+            double promedioValoracion,
+            long cantidadValoraciones,
+            Short valoracionUsuarioActual
     ) {
         public static RecursoResponse desde(Recurso r) {
-            return desde(r, new ResumenValoracion(r.id(), 0, 0, null));
+            return desde(r, ResumenValoracion.vacio(r.id()));
         }
         public static RecursoResponse desde(Recurso r, ResumenValoracion valoracion) {
             return new RecursoResponse(
@@ -96,9 +96,9 @@ public class RecursoController {
                     r.asignatura().nombre(),
                     r.usuario().nombre(),
                     r.fechaSubida(),
-                    valoracion.puntajeNeto(),
-                    valoracion.cantidadVotos(),
-                    valoracion.votoUsuarioActual()
+                    valoracion.promedio(),
+                    valoracion.cantidadValoraciones(),
+                    valoracion.valoracionUsuarioActual()
             );
         }
     }

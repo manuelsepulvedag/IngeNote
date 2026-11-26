@@ -5,10 +5,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ValoracionPersistencePort {
-    boolean existeRecurso(UUID recursoId);
+    /** Id del usuario que subió el recurso; vacío si el recurso no existe. */
+    Optional<UUID> buscarAutorRecurso(UUID recursoId);
     Optional<Valoracion> buscarPorRecursoYUsuario(UUID recursoId, UUID usuarioId);
     Valoracion guardar(Valoracion valoracion);
     void eliminar(UUID id);
-    long puntajeNeto(UUID recursoId);
-    long cantidadVotos(UUID recursoId);
+    /** Promedio de estrellas; 0 si el recurso no tiene valoraciones. */
+    double promedio(UUID recursoId);
+    long cantidadValoraciones(UUID recursoId);
 }

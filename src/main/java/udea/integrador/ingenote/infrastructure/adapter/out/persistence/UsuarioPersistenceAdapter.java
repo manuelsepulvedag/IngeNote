@@ -1,6 +1,8 @@
 package udea.integrador.ingenote.infrastructure.adapter.out.persistence;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import udea.integrador.ingenote.infrastructure.adapter.out.persistence.entity.UsuarioJpaEntity;
 import udea.integrador.ingenote.domain.model.Rol;
 import udea.integrador.ingenote.domain.model.Usuario;
 import udea.integrador.ingenote.domain.port.out.UsuarioPersistencePort;
@@ -29,4 +31,14 @@ public class UsuarioPersistenceAdapter implements UsuarioPersistencePort {
         return UsuarioPersistenceMapper.aDominio(usuarios.save(UsuarioPersistenceMapper.aEntidadNuevo(usuario, rol)));
     }
     public boolean existeCarrera(UUID idCarrera) { return carreras.existsById(idCarrera); }
+    @Transactional(readOnly = true)
+    public Optional<Usuario> buscarPorId(UUID id) { return usuarios.findById(id).map(UsuarioPersistenceMapper::aDominio); }
+    @Transactional
+    public Usuario actualizar(Usuario usuario) {
+        UsuarioJpaEntity entidad = usuarios.findById(usuario.id()).orElseThrow();
+        entidad.actualizar(usuario.nombre(), usuario.idCarrera(), usuario.contrasenaHash());
+        return UsuarioPersistenceMapper.aDominio(usuarios.save(entidad));
+    }
+    @Transactional
+    public void eliminar(UUID id) { usuarios.deleteById(id); }
 }

@@ -3,7 +3,11 @@ package udea.integrador.ingenote.domain.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/** Modelo de negocio; no conoce Spring ni persistencia. */
+/**
+ * Modelo de negocio; no conoce Spring ni persistencia.
+ * urlStorage es la URL del archivo en el almacenamiento o, si el tipo es URL,
+ * el enlace externo. descripcion puede ser null.
+ */
 public record Recurso(
         UUID id,
         Usuario usuario,
@@ -11,6 +15,7 @@ public record Recurso(
         TipoFormato tipoFormato,
         String titulo,
         String urlStorage,
-        LocalDateTime fechaSubida
+        LocalDateTime fechaSubida,
+        String descripcion
 ) {
 }

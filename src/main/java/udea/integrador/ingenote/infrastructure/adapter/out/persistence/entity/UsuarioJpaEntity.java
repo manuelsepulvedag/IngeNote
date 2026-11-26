@@ -39,6 +39,9 @@ public class UsuarioJpaEntity {
         this.rol = rol; this.nombre = nombre; this.correo = correo; this.contrasenaHash = contrasenaHash; this.fechaRegistro = fechaRegistro; this.idCarrera = idCarrera;
     }
     public UUID getIdCarrera() { return idCarrera; }
+    public void actualizar(String nombre, UUID idCarrera, String contrasenaHash) {
+        this.nombre = nombre; this.idCarrera = idCarrera; this.contrasenaHash = contrasenaHash;
+    }
     public UUID getId() { return id; }
     public RolJpaEntity getRol() { return rol; }
     public String getNombre() { return nombre; }

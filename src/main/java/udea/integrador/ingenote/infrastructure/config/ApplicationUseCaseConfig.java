@@ -28,6 +28,11 @@ import udea.integrador.ingenote.application.service.ConsultarPerfilService;
 import udea.integrador.ingenote.application.service.EliminarRecursoService;
 import udea.integrador.ingenote.application.service.ListarAsignaturasService;
 import udea.integrador.ingenote.application.port.in.ListarCarrerasUseCase;
+import udea.integrador.ingenote.application.port.in.CuentaUseCase;
+import udea.integrador.ingenote.application.port.in.FavoritoUseCase;
+import udea.integrador.ingenote.application.service.CuentaService;
+import udea.integrador.ingenote.application.service.FavoritoService;
+import udea.integrador.ingenote.domain.port.out.FavoritoPersistencePort;
 import udea.integrador.ingenote.application.service.ListarCarrerasService;
 
 @Configuration
@@ -42,8 +47,9 @@ public class ApplicationUseCaseConfig {
         return new InicioSesionService(usuarios, passwordCipher, tokenPort);
     }
 
+    /** Un único bean que atiende la creación (SubirRecursoUseCase) y la edición (EditarRecursoUseCase). */
     @Bean
-    SubirRecursoUseCase subirRecursoUseCase(
+    SubirRecursoService subirRecursoUseCase(
             UsuarioPersistencePort usuarios,
             RecursoPersistencePort recursos,
             ArchivoStoragePort storage
@@ -66,6 +72,16 @@ public class ApplicationUseCaseConfig {
     @Bean
     ListarAsignaturasUseCase listarAsignaturasUseCase(RecursoPersistencePort recursos) {
         return new ListarAsignaturasService(recursos);
+    }
+
+    @Bean
+    CuentaUseCase cuentaUseCase(UsuarioPersistencePort usuarios, PasswordCipherPort passwordCipher) {
+        return new CuentaService(usuarios, passwordCipher);
+    }
+
+    @Bean
+    FavoritoUseCase favoritoUseCase(FavoritoPersistencePort favoritos, UsuarioPersistencePort usuarios) {
+        return new FavoritoService(favoritos, usuarios);
     }
 
     @Bean

@@ -70,6 +70,19 @@ public class RecursoPersistenceAdapter implements RecursoPersistencePort {
 
     @Override
     @Transactional
+    public Recurso actualizar(Recurso recurso) {
+        RecursoJpaEntity entidad = recursos.findById(recurso.id()).orElseThrow();
+        entidad.actualizar(
+                asignaturas.findById(recurso.asignatura().id()).orElseThrow(),
+                tiposFormato.findById(recurso.tipoFormato().id()).orElseThrow(),
+                recurso.titulo(),
+                recurso.urlStorage(),
+                recurso.descripcion());
+        return RecursoPersistenceMapper.aDominio(recursos.save(entidad));
+    }
+
+    @Override
+    @Transactional
     public void eliminar(UUID id) {
         valoraciones.deleteByRecursoId(id);
         recursos.deleteById(id);

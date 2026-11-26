@@ -42,6 +42,9 @@ public class RecursoJpaEntity {
     @Column(name = "fecha_subida", nullable = false)
     private LocalDateTime fechaSubida;
 
+    @Column(name = "descripcion", columnDefinition = "text")
+    private String descripcion;
+
     protected RecursoJpaEntity() { }
 
     public RecursoJpaEntity(
@@ -50,7 +53,8 @@ public class RecursoJpaEntity {
             TipoFormatoJpaEntity tipoFormato,
             String titulo,
             String urlStorage,
-            LocalDateTime fechaSubida
+            LocalDateTime fechaSubida,
+            String descripcion
     ) {
         this.asignatura = asignatura;
         this.usuario = usuario;
@@ -58,7 +62,20 @@ public class RecursoJpaEntity {
         this.titulo = titulo;
         this.urlStorage = urlStorage;
         this.fechaSubida = fechaSubida;
+        this.descripcion = descripcion;
     }
+
+    /** Edición: título, asignatura, descripción y adjunto. */
+    public void actualizar(AsignaturaJpaEntity asignatura, TipoFormatoJpaEntity tipoFormato, String titulo,
+                           String urlStorage, String descripcion) {
+        this.asignatura = asignatura;
+        this.tipoFormato = tipoFormato;
+        this.titulo = titulo;
+        this.urlStorage = urlStorage;
+        this.descripcion = descripcion;
+    }
+
+    public String getDescripcion() { return descripcion; }
 
     public UUID getId() { return id; }
     public AsignaturaJpaEntity getAsignatura() { return asignatura; }

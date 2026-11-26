@@ -27,7 +27,8 @@ public final class RecursoPersistenceMapper {
                 aDominio(entity.getTipoFormato()),
                 entity.getTitulo(),
                 entity.getUrlStorage(),
-                entity.getFechaSubida()
+                entity.getFechaSubida(),
+                entity.getDescripcion()
         );
     }
 
@@ -43,7 +44,8 @@ public final class RecursoPersistenceMapper {
                 tipoFormato,
                 recurso.titulo(),
                 recurso.urlStorage(),
-                recurso.fechaSubida()
+                recurso.fechaSubida(),
+                recurso.descripcion()
         );
     }
 }

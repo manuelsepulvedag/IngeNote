@@ -15,6 +15,8 @@ import udea.integrador.ingenote.application.port.in.ListarRecursosUseCase;
 import udea.integrador.ingenote.application.port.in.SubirRecursoCommand;
 import udea.integrador.ingenote.application.port.in.SubirRecursoUseCase;
 import udea.integrador.ingenote.domain.model.Recurso;
+import udea.integrador.ingenote.application.port.in.ValoracionUseCase;
+import udea.integrador.ingenote.domain.model.ResumenValoracion;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -26,10 +28,12 @@ import java.util.UUID;
 public class RecursoController {
     private final SubirRecursoUseCase subirRecurso;
     private final ListarRecursosUseCase listarRecursos;
+    private final ValoracionUseCase valoraciones;
 
-    public RecursoController(SubirRecursoUseCase subirRecurso, ListarRecursosUseCase listarRecursos) {
+    public RecursoController(SubirRecursoUseCase subirRecurso, ListarRecursosUseCase listarRecursos, ValoracionUseCase valoraciones) {
         this.subirRecurso = subirRecurso;
         this.listarRecursos = listarRecursos;
+        this.valoraciones = valoraciones;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -59,10 +63,10 @@ public class RecursoController {
     }
 
     @GetMapping
-    public List<RecursoResponse> listar(@RequestParam(value = "idAsignatura", required = false) UUID idAsignatura) {
+    public List<RecursoResponse> listar(@RequestParam(value = "idAsignatura", required = false) UUID idAsignatura, Authentication authentication) {
         return listarRecursos.listar(idAsignatura)
                 .stream()
-                .map(RecursoResponse::desde)
+                .map(r -> RecursoResponse.desde(r, valoraciones.resumen(authentication.getName(), r.id())))
                 .toList();
     }
 
@@ -74,9 +78,15 @@ public class RecursoController {
             UUID idAsignatura,
             String asignatura,
             String autor,
-            LocalDateTime fechaSubida
+            LocalDateTime fechaSubida,
+            long puntajeNeto,
+            long cantidadVotos,
+            Short votoUsuarioActual
     ) {
         public static RecursoResponse desde(Recurso r) {
+            return desde(r, new ResumenValoracion(r.id(), 0, 0, null));
+        }
+        public static RecursoResponse desde(Recurso r, ResumenValoracion valoracion) {
             return new RecursoResponse(
                     r.id(),
                     r.titulo(),
@@ -85,7 +95,10 @@ public class RecursoController {
                     r.asignatura().id(),
                     r.asignatura().nombre(),
                     r.usuario().nombre(),
-                    r.fechaSubida()
+                    r.fechaSubida(),
+                    valoracion.puntajeNeto(),
+                    valoracion.cantidadVotos(),
+                    valoracion.votoUsuarioActual()
             );
         }
     }

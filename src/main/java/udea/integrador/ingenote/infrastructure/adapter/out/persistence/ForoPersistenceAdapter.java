@@ -1,0 +1,17 @@
+package udea.integrador.ingenote.infrastructure.adapter.out.persistence;
+import org.springframework.data.domain.PageRequest; import org.springframework.stereotype.Repository; import org.springframework.transaction.annotation.Transactional;
+import udea.integrador.ingenote.domain.model.*; import udea.integrador.ingenote.domain.port.out.ForoPersistencePort;
+import udea.integrador.ingenote.infrastructure.adapter.out.persistence.entity.*; import udea.integrador.ingenote.infrastructure.adapter.out.persistence.repository.*;
+import java.util.*;
+@Repository public class ForoPersistenceAdapter implements ForoPersistencePort {
+ private final ForoHiloSpringDataRepository hilos; private final ForoRespuestaSpringDataRepository respuestas; private final AsignaturaSpringDataRepository asignaturas; private final UsuarioSpringDataRepository usuarios;
+ public ForoPersistenceAdapter(ForoHiloSpringDataRepository h,ForoRespuestaSpringDataRepository r,AsignaturaSpringDataRepository a,UsuarioSpringDataRepository u){hilos=h;respuestas=r;asignaturas=a;usuarios=u;}
+ private ForoHilo hilo(ForoHiloJpaEntity e){return new ForoHilo(e.getId(),RecursoPersistenceMapper.aDominio(e.getAsignatura()),UsuarioPersistenceMapper.aDominio(e.getUsuario()),e.getTitulo(),e.getContenido(),e.getFechaCreacion());}
+ private ForoRespuesta respuesta(ForoRespuestaJpaEntity e){return new ForoRespuesta(e.getId(),e.getHilo().getId(),UsuarioPersistenceMapper.aDominio(e.getUsuario()),e.getContenido(),e.getFechaCreacion());}
+ @Transactional public ForoHilo guardarHilo(ForoHilo x){ ForoHiloJpaEntity e; if(x.id()==null){e=new ForoHiloJpaEntity(asignaturas.getReferenceById(x.asignatura().id()),usuarios.getReferenceById(x.autor().id()),x.titulo(),x.contenido(),x.fechaCreacion());}else{e=hilos.findById(x.id()).orElseThrow();e.actualizar(x.titulo(),x.contenido());} return hilo(hilos.save(e)); }
+ @Transactional(readOnly=true) public Optional<ForoHilo> buscarHilo(UUID id){return hilos.findById(id).map(this::hilo);}
+ @Transactional(readOnly=true) public List<ForoHilo> listarHilos(UUID a,int p,int s){return (a==null?hilos.findAllByOrderByFechaCreacionDesc(PageRequest.of(p,s)):hilos.findByAsignaturaIdOrderByFechaCreacionDesc(a,PageRequest.of(p,s))).stream().map(this::hilo).toList();}
+ @Transactional(readOnly=true) public long contarHilos(UUID a){return a==null?hilos.count():hilos.countByAsignaturaId(a);} @Transactional(readOnly=true) public long contarRespuestas(UUID id){return respuestas.countByHiloId(id);} @Transactional public void eliminarHilo(UUID id){respuestas.deleteByHiloId(id);hilos.deleteById(id);}
+ @Transactional public ForoRespuesta guardarRespuesta(ForoRespuesta x){ForoRespuestaJpaEntity e;if(x.id()==null)e=new ForoRespuestaJpaEntity(hilos.getReferenceById(x.hiloId()),usuarios.getReferenceById(x.autor().id()),x.contenido(),x.fechaCreacion());else{e=respuestas.findById(x.id()).orElseThrow();e.actualizar(x.contenido());}return respuesta(respuestas.save(e));}
+ @Transactional(readOnly=true) public Optional<ForoRespuesta> buscarRespuesta(UUID id){return respuestas.findById(id).map(this::respuesta);} @Transactional(readOnly=true) public List<ForoRespuesta> listarRespuestas(UUID id){return respuestas.findByHiloIdOrderByFechaCreacionAsc(id).stream().map(this::respuesta).toList();} @Transactional public void eliminarRespuesta(UUID id){respuestas.deleteById(id);}
+}

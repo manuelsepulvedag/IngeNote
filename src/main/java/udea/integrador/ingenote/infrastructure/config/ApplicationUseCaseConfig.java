@@ -15,6 +15,12 @@ import udea.integrador.ingenote.domain.port.out.PasswordCipherPort;
 import udea.integrador.ingenote.domain.port.out.RecursoPersistencePort;
 import udea.integrador.ingenote.domain.port.out.TokenPort;
 import udea.integrador.ingenote.domain.port.out.UsuarioPersistencePort;
+import udea.integrador.ingenote.domain.port.out.ForoPersistencePort;
+import udea.integrador.ingenote.domain.port.out.ValoracionPersistencePort;
+import udea.integrador.ingenote.application.port.in.ForoUseCase;
+import udea.integrador.ingenote.application.port.in.ValoracionUseCase;
+import udea.integrador.ingenote.application.service.ForoService;
+import udea.integrador.ingenote.application.service.ValoracionService;
 
 @Configuration
 public class ApplicationUseCaseConfig {
@@ -41,4 +47,6 @@ public class ApplicationUseCaseConfig {
     ListarRecursosUseCase listarRecursosUseCase(RecursoPersistencePort recursos) {
         return new ListarRecursosService(recursos);
     }
+    @Bean ForoUseCase foroUseCase(ForoPersistencePort foros, RecursoPersistencePort recursos, UsuarioPersistencePort usuarios) { return new ForoService(foros, recursos, usuarios); }
+    @Bean ValoracionUseCase valoracionUseCase(ValoracionPersistencePort votos, UsuarioPersistencePort usuarios) { return new ValoracionService(votos, usuarios); }
 }

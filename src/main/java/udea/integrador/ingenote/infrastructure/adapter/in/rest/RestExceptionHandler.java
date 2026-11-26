@@ -10,6 +10,9 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import udea.integrador.ingenote.application.exception.AlmacenamientoException;
 import udea.integrador.ingenote.application.exception.CredencialesInvalidasException;
 import udea.integrador.ingenote.application.exception.ReglaDeNegocioException;
+import udea.integrador.ingenote.application.exception.RecursoNoEncontradoException;
+import udea.integrador.ingenote.application.exception.AccesoDenegadoException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.Map;
 
@@ -20,6 +23,9 @@ public class RestExceptionHandler {
     Map<String, String> regla(ReglaDeNegocioException exception) {
         return Map.of("mensaje", exception.getMessage());
     }
+    @ExceptionHandler(RecursoNoEncontradoException.class) @ResponseStatus(HttpStatus.NOT_FOUND) Map<String,String> recurso(RecursoNoEncontradoException e){ return Map.of("mensaje",e.getMessage()); }
+    @ExceptionHandler(AccesoDenegadoException.class) @ResponseStatus(HttpStatus.FORBIDDEN) Map<String,String> acceso(AccesoDenegadoException e){ return Map.of("mensaje",e.getMessage()); }
+    @ExceptionHandler({MethodArgumentNotValidException.class, IllegalArgumentException.class}) @ResponseStatus(HttpStatus.BAD_REQUEST) Map<String,String> invalida(Exception e){return Map.of("mensaje","Solicitud inválida: "+e.getMessage());}
 
     @ExceptionHandler(CredencialesInvalidasException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

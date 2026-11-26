@@ -1,0 +1,3 @@
+package udea.integrador.ingenote.infrastructure.adapter.out.persistence.repository;
+import org.springframework.data.domain.Pageable; import org.springframework.data.jpa.repository.JpaRepository; import udea.integrador.ingenote.infrastructure.adapter.out.persistence.entity.ForoHiloJpaEntity; import java.util.*;
+public interface ForoHiloSpringDataRepository extends JpaRepository<ForoHiloJpaEntity,UUID>{ List<ForoHiloJpaEntity> findByAsignaturaIdOrderByFechaCreacionDesc(UUID id, Pageable p); List<ForoHiloJpaEntity> findAllByOrderByFechaCreacionDesc(Pageable p); long countByAsignaturaId(UUID id); }

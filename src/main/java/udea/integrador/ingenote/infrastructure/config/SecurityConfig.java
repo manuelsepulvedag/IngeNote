@@ -38,6 +38,9 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // La página de error de Spring debe ser pública: si no, un 404 o un 500
+                        // llegan al cliente como 401 y este cierra la sesión por error.
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/registro").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/carreras").permitAll()
                         .anyRequest().authenticated())

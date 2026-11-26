@@ -4,8 +4,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import udea.integrador.ingenote.application.port.in.EliminarRecursoUseCase;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,11 +33,20 @@ public class RecursoController {
     private final SubirRecursoUseCase subirRecurso;
     private final ListarRecursosUseCase listarRecursos;
     private final ValoracionUseCase valoraciones;
+    private final EliminarRecursoUseCase eliminarRecurso;
 
-    public RecursoController(SubirRecursoUseCase subirRecurso, ListarRecursosUseCase listarRecursos, ValoracionUseCase valoraciones) {
+    public RecursoController(SubirRecursoUseCase subirRecurso, ListarRecursosUseCase listarRecursos,
+                             ValoracionUseCase valoraciones, EliminarRecursoUseCase eliminarRecurso) {
         this.subirRecurso = subirRecurso;
         this.listarRecursos = listarRecursos;
         this.valoraciones = valoraciones;
+        this.eliminarRecurso = eliminarRecurso;
+    }
+
+    @DeleteMapping("/{recursoId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminar(@PathVariable UUID recursoId, Authentication authentication) {
+        eliminarRecurso.eliminar(authentication.getName(), recursoId);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -77,6 +90,7 @@ public class RecursoController {
             String tipoFormato,
             UUID idAsignatura,
             String asignatura,
+            UUID idAutor,
             String autor,
             LocalDateTime fechaSubida,
             double promedioValoracion,
@@ -94,6 +108,7 @@ public class RecursoController {
                     r.tipoFormato().nombre(),
                     r.asignatura().id(),
                     r.asignatura().nombre(),
+                    r.usuario().id(),
                     r.usuario().nombre(),
                     r.fechaSubida(),
                     valoracion.promedio(),

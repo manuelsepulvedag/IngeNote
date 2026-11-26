@@ -17,4 +17,6 @@ public interface ForoPersistencePort {
     Optional<ForoRespuesta> buscarRespuesta(UUID id);
     List<ForoRespuesta> listarRespuestas(UUID hiloId);
     void eliminarRespuesta(UUID id);
+    /** Guarda la respuesta marcada como solución del hilo; null la desmarca. */
+    ForoHilo marcarSolucion(UUID hiloId, UUID respuestaId);
 }

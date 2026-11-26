@@ -21,6 +21,12 @@ import udea.integrador.ingenote.application.port.in.ForoUseCase;
 import udea.integrador.ingenote.application.port.in.ValoracionUseCase;
 import udea.integrador.ingenote.application.service.ForoService;
 import udea.integrador.ingenote.application.service.ValoracionService;
+import udea.integrador.ingenote.application.port.in.ConsultarPerfilUseCase;
+import udea.integrador.ingenote.application.port.in.EliminarRecursoUseCase;
+import udea.integrador.ingenote.application.port.in.ListarAsignaturasUseCase;
+import udea.integrador.ingenote.application.service.ConsultarPerfilService;
+import udea.integrador.ingenote.application.service.EliminarRecursoService;
+import udea.integrador.ingenote.application.service.ListarAsignaturasService;
 
 @Configuration
 public class ApplicationUseCaseConfig {
@@ -49,4 +55,19 @@ public class ApplicationUseCaseConfig {
     }
     @Bean ForoUseCase foroUseCase(ForoPersistencePort foros, RecursoPersistencePort recursos, UsuarioPersistencePort usuarios) { return new ForoService(foros, recursos, usuarios); }
     @Bean ValoracionUseCase valoracionUseCase(ValoracionPersistencePort votos, UsuarioPersistencePort usuarios) { return new ValoracionService(votos, usuarios); }
+
+    @Bean
+    ConsultarPerfilUseCase consultarPerfilUseCase(UsuarioPersistencePort usuarios) {
+        return new ConsultarPerfilService(usuarios);
+    }
+
+    @Bean
+    ListarAsignaturasUseCase listarAsignaturasUseCase(RecursoPersistencePort recursos) {
+        return new ListarAsignaturasService(recursos);
+    }
+
+    @Bean
+    EliminarRecursoUseCase eliminarRecursoUseCase(RecursoPersistencePort recursos, UsuarioPersistencePort usuarios) {
+        return new EliminarRecursoService(recursos, usuarios);
+    }
 }

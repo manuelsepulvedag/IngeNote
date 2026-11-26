@@ -1,6 +1,7 @@
 package udea.integrador.ingenote.infrastructure.adapter.out.persistence.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import udea.integrador.ingenote.infrastructure.adapter.out.persistence.entity.ValoracionJpaEntity;
@@ -15,4 +16,8 @@ public interface ValoracionSpringDataRepository extends JpaRepository<Valoracion
     Double promedio(@Param("id") UUID recursoId);
 
     long countByRecursoId(UUID recursoId);
+
+    @Modifying
+    @Query("delete from ValoracionJpaEntity v where v.recurso.id = :id")
+    void deleteByRecursoId(@Param("id") UUID recursoId);
 }

@@ -14,4 +14,8 @@ public interface RecursoPersistencePort {
     Recurso guardar(Recurso recurso);
     List<Recurso> listarTodos();
     List<Recurso> listarPorAsignatura(UUID idAsignatura);
+    List<Asignatura> listarAsignaturas();
+    Optional<Recurso> buscarPorId(UUID id);
+    /** Elimina el recurso junto con sus valoraciones. */
+    void eliminar(UUID id);
 }

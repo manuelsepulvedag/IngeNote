@@ -1,11 +1,109 @@
 package udea.integrador.ingenote.infrastructure.adapter.in.rest;
-import jakarta.validation.Valid; import jakarta.validation.constraints.NotBlank; import org.springframework.http.*; import org.springframework.security.core.Authentication; import org.springframework.web.bind.annotation.*; import udea.integrador.ingenote.application.port.in.ForoUseCase; import udea.integrador.ingenote.domain.model.*; import java.time.LocalDateTime; import java.util.*;
-@RestController @RequestMapping("/api/foros") public class ForoController {
- private final ForoUseCase foro; public ForoController(ForoUseCase f){foro=f;} record Texto(@NotBlank String contenido){} record HiloRequest(@NotBlank String titulo,@NotBlank String contenido){} record Autor(UUID id,String nombre){} record AsignaturaDto(UUID id,String nombre){} record RespuestaDto(UUID id,Autor autor,String contenido,LocalDateTime fechaCreacion){static RespuestaDto de(ForoRespuesta r){return new RespuestaDto(r.id(),new Autor(r.autor().id(),r.autor().nombre()),r.contenido(),r.fechaCreacion());}} record HiloDto(UUID id,String titulo,String contenido,LocalDateTime fechaCreacion,Autor autor,AsignaturaDto asignatura,long cantidadRespuestas){static HiloDto de(ForoHilo h,long n){return new HiloDto(h.id(),h.titulo(),h.contenido(),h.fechaCreacion(),new Autor(h.autor().id(),h.autor().nombre()),new AsignaturaDto(h.asignatura().id(),h.asignatura().nombre()),n);}} record Pagina(List<HiloDto> contenido,long total,int pagina,int tamano){} record Detalle(HiloDto hilo,List<RespuestaDto> respuestas){}
- @PostMapping("/asignaturas/{asignaturaId}/hilos") ResponseEntity<HiloDto> crear(@PathVariable UUID asignaturaId,@Valid @RequestBody HiloRequest r,Authentication a){ForoHilo h=foro.crearHilo(a.getName(),asignaturaId,r.titulo(),r.contenido());return ResponseEntity.status(HttpStatus.CREATED).body(HiloDto.de(h,0));}
- @GetMapping("/hilos") Pagina listar(@RequestParam(required=false) UUID idAsignatura,@RequestParam(defaultValue="0") int pagina,@RequestParam(defaultValue="20") int tamano){if(pagina<0||tamano<1||tamano>100)throw new IllegalArgumentException("Paginación inválida");return new Pagina(foro.listar(idAsignatura,pagina,tamano).stream().map(h->HiloDto.de(h,foro.contarRespuestas(h.id()))).toList(),foro.contarHilos(idAsignatura),pagina,tamano);}
- @GetMapping("/hilos/{hiloId}") Detalle detalle(@PathVariable UUID hiloId){ForoHilo h=foro.detalle(hiloId);return new Detalle(HiloDto.de(h,foro.contarRespuestas(hiloId)),foro.respuestas(hiloId).stream().map(RespuestaDto::de).toList());}
- @PutMapping("/hilos/{hiloId}") HiloDto editar(@PathVariable UUID hiloId,@Valid @RequestBody HiloRequest r,Authentication a){ForoHilo h=foro.editarHilo(a.getName(),hiloId,r.titulo(),r.contenido());return HiloDto.de(h,foro.contarRespuestas(hiloId));} @DeleteMapping("/hilos/{hiloId}") @ResponseStatus(HttpStatus.NO_CONTENT) void eliminar(@PathVariable UUID hiloId,Authentication a){foro.eliminarHilo(a.getName(),hiloId);}
- @PostMapping("/hilos/{hiloId}/respuestas") ResponseEntity<RespuestaDto> responder(@PathVariable UUID hiloId,@Valid @RequestBody Texto r,Authentication a){return ResponseEntity.status(HttpStatus.CREATED).body(RespuestaDto.de(foro.responder(a.getName(),hiloId,r.contenido())));} @PutMapping("/respuestas/{respuestaId}") RespuestaDto editarR(@PathVariable UUID respuestaId,@Valid @RequestBody Texto r,Authentication a){return RespuestaDto.de(foro.editarRespuesta(a.getName(),respuestaId,r.contenido()));} @DeleteMapping("/respuestas/{respuestaId}") @ResponseStatus(HttpStatus.NO_CONTENT) void eliminarR(@PathVariable UUID respuestaId,Authentication a){foro.eliminarRespuesta(a.getName(),respuestaId);}
- @PatchMapping("/hilos/{hiloId}/respuestas/{respuestaId}/solucion") void solucion(@PathVariable UUID hiloId,@PathVariable UUID respuestaId,Authentication a){foro.marcarSolucion(a.getName(),hiloId,respuestaId);}
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import udea.integrador.ingenote.application.port.in.ForoUseCase;
+import udea.integrador.ingenote.domain.model.ForoHilo;
+import udea.integrador.ingenote.domain.model.ForoRespuesta;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/foros")
+public class ForoController {
+    private final ForoUseCase foro;
+
+    public ForoController(ForoUseCase foro) {
+        this.foro = foro;
+    }
+
+    record Texto(@NotBlank String contenido) { }
+    record HiloRequest(@NotBlank String titulo, @NotBlank String contenido) { }
+    record Autor(UUID id, String nombre) { }
+    record AsignaturaDto(UUID id, String nombre) { }
+
+    record RespuestaDto(UUID id, UUID idHilo, Autor autor, String contenido, LocalDateTime fechaCreacion) {
+        static RespuestaDto de(ForoRespuesta r) {
+            return new RespuestaDto(r.id(), r.hiloId(), new Autor(r.autor().id(), r.autor().nombre()),
+                    r.contenido(), r.fechaCreacion());
+        }
+    }
+
+    record HiloDto(UUID id, String titulo, String contenido, LocalDateTime fechaCreacion, Autor autor,
+                   AsignaturaDto asignatura, long cantidadRespuestas, UUID idRespuestaSolucion) {
+        static HiloDto de(ForoHilo h, long respuestas) {
+            return new HiloDto(h.id(), h.titulo(), h.contenido(), h.fechaCreacion(),
+                    new Autor(h.autor().id(), h.autor().nombre()),
+                    new AsignaturaDto(h.asignatura().id(), h.asignatura().nombre()),
+                    respuestas, h.idRespuestaSolucion());
+        }
+    }
+
+    record Pagina(List<HiloDto> contenido, long total, int pagina, int tamano) { }
+    record Detalle(HiloDto hilo, List<RespuestaDto> respuestas) { }
+
+    @PostMapping("/asignaturas/{asignaturaId}/hilos")
+    ResponseEntity<HiloDto> crear(@PathVariable UUID asignaturaId, @Valid @RequestBody HiloRequest r, Authentication a) {
+        ForoHilo h = foro.crearHilo(a.getName(), asignaturaId, r.titulo(), r.contenido());
+        return ResponseEntity.status(HttpStatus.CREATED).body(HiloDto.de(h, 0));
+    }
+
+    @GetMapping("/hilos")
+    Pagina listar(@RequestParam(required = false) UUID idAsignatura,
+                  @RequestParam(defaultValue = "0") int pagina,
+                  @RequestParam(defaultValue = "20") int tamano) {
+        if (pagina < 0 || tamano < 1 || tamano > 100) throw new IllegalArgumentException("Paginación inválida");
+        List<HiloDto> hilos = foro.listar(idAsignatura, pagina, tamano).stream()
+                .map(h -> HiloDto.de(h, foro.contarRespuestas(h.id())))
+                .toList();
+        return new Pagina(hilos, foro.contarHilos(idAsignatura), pagina, tamano);
+    }
+
+    @GetMapping("/hilos/{hiloId}")
+    Detalle detalle(@PathVariable UUID hiloId) {
+        ForoHilo h = foro.detalle(hiloId);
+        return new Detalle(HiloDto.de(h, foro.contarRespuestas(hiloId)),
+                foro.respuestas(hiloId).stream().map(RespuestaDto::de).toList());
+    }
+
+    @PutMapping("/hilos/{hiloId}")
+    HiloDto editar(@PathVariable UUID hiloId, @Valid @RequestBody HiloRequest r, Authentication a) {
+        ForoHilo h = foro.editarHilo(a.getName(), hiloId, r.titulo(), r.contenido());
+        return HiloDto.de(h, foro.contarRespuestas(hiloId));
+    }
+
+    @DeleteMapping("/hilos/{hiloId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void eliminar(@PathVariable UUID hiloId, Authentication a) {
+        foro.eliminarHilo(a.getName(), hiloId);
+    }
+
+    @PostMapping("/hilos/{hiloId}/respuestas")
+    ResponseEntity<RespuestaDto> responder(@PathVariable UUID hiloId, @Valid @RequestBody Texto r, Authentication a) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(RespuestaDto.de(foro.responder(a.getName(), hiloId, r.contenido())));
+    }
+
+    @PutMapping("/respuestas/{respuestaId}")
+    RespuestaDto editarRespuesta(@PathVariable UUID respuestaId, @Valid @RequestBody Texto r, Authentication a) {
+        return RespuestaDto.de(foro.editarRespuesta(a.getName(), respuestaId, r.contenido()));
+    }
+
+    @DeleteMapping("/respuestas/{respuestaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void eliminarRespuesta(@PathVariable UUID respuestaId, Authentication a) {
+        foro.eliminarRespuesta(a.getName(), respuestaId);
+    }
+
+    /** Marca la respuesta como solución; si ya lo era, la desmarca. Devuelve el hilo actualizado. */
+    @PatchMapping("/hilos/{hiloId}/respuestas/{respuestaId}/solucion")
+    HiloDto solucion(@PathVariable UUID hiloId, @PathVariable UUID respuestaId, Authentication a) {
+        ForoHilo h = foro.marcarSolucion(a.getName(), hiloId, respuestaId);
+        return HiloDto.de(h, foro.contarRespuestas(hiloId));
+    }
 }

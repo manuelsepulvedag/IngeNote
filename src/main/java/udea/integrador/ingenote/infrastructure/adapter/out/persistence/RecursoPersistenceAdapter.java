@@ -14,6 +14,7 @@ import udea.integrador.ingenote.infrastructure.adapter.out.persistence.repositor
 import udea.integrador.ingenote.infrastructure.adapter.out.persistence.repository.RecursoSpringDataRepository;
 import udea.integrador.ingenote.infrastructure.adapter.out.persistence.repository.TipoFormatoSpringDataRepository;
 import udea.integrador.ingenote.infrastructure.adapter.out.persistence.repository.UsuarioSpringDataRepository;
+import udea.integrador.ingenote.infrastructure.adapter.out.persistence.repository.ValoracionSpringDataRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,17 +26,39 @@ public class RecursoPersistenceAdapter implements RecursoPersistencePort {
     private final UsuarioSpringDataRepository usuarios;
     private final AsignaturaSpringDataRepository asignaturas;
     private final TipoFormatoSpringDataRepository tiposFormato;
+    private final ValoracionSpringDataRepository valoraciones;
 
     public RecursoPersistenceAdapter(
             RecursoSpringDataRepository recursos,
             UsuarioSpringDataRepository usuarios,
             AsignaturaSpringDataRepository asignaturas,
-            TipoFormatoSpringDataRepository tiposFormato
+            TipoFormatoSpringDataRepository tiposFormato,
+            ValoracionSpringDataRepository valoraciones
     ) {
         this.recursos = recursos;
         this.usuarios = usuarios;
         this.asignaturas = asignaturas;
         this.tiposFormato = tiposFormato;
+        this.valoraciones = valoraciones;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Asignatura> listarAsignaturas() {
+        return asignaturas.findAll().stream().map(RecursoPersistenceMapper::aDominio).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Recurso> buscarPorId(UUID id) {
+        return recursos.findById(id).map(RecursoPersistenceMapper::aDominio);
+    }
+
+    @Override
+    @Transactional
+    public void eliminar(UUID id) {
+        valoraciones.deleteByRecursoId(id);
+        recursos.deleteById(id);
     }
 
     @Override

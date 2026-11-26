@@ -27,6 +27,8 @@ import udea.integrador.ingenote.application.port.in.ListarAsignaturasUseCase;
 import udea.integrador.ingenote.application.service.ConsultarPerfilService;
 import udea.integrador.ingenote.application.service.EliminarRecursoService;
 import udea.integrador.ingenote.application.service.ListarAsignaturasService;
+import udea.integrador.ingenote.application.port.in.ListarCarrerasUseCase;
+import udea.integrador.ingenote.application.service.ListarCarrerasService;
 
 @Configuration
 public class ApplicationUseCaseConfig {
@@ -64,6 +66,11 @@ public class ApplicationUseCaseConfig {
     @Bean
     ListarAsignaturasUseCase listarAsignaturasUseCase(RecursoPersistencePort recursos) {
         return new ListarAsignaturasService(recursos);
+    }
+
+    @Bean
+    ListarCarrerasUseCase listarCarrerasUseCase(RecursoPersistencePort recursos) {
+        return new ListarCarrerasService(recursos);
     }
 
     @Bean

@@ -31,10 +31,14 @@ public class UsuarioJpaEntity {
     private String contrasenaHash;
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro;
+    /** FK opcional a tbl_carrera (ON DELETE SET NULL). */
+    @Column(name = "id_carrera")
+    private UUID idCarrera;
     protected UsuarioJpaEntity() { }
-    public UsuarioJpaEntity(RolJpaEntity rol, String nombre, String correo, String contrasenaHash, LocalDateTime fechaRegistro) {
-        this.rol = rol; this.nombre = nombre; this.correo = correo; this.contrasenaHash = contrasenaHash; this.fechaRegistro = fechaRegistro;
+    public UsuarioJpaEntity(RolJpaEntity rol, String nombre, String correo, String contrasenaHash, LocalDateTime fechaRegistro, UUID idCarrera) {
+        this.rol = rol; this.nombre = nombre; this.correo = correo; this.contrasenaHash = contrasenaHash; this.fechaRegistro = fechaRegistro; this.idCarrera = idCarrera;
     }
+    public UUID getIdCarrera() { return idCarrera; }
     public UUID getId() { return id; }
     public RolJpaEntity getRol() { return rol; }
     public String getNombre() { return nombre; }

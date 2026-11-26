@@ -1,4 +1,7 @@
 package udea.integrador.ingenote.application.port.in;
 
-public record RegistroUsuarioCommand(String nombre, String correo, String contrasena) {
+import java.util.UUID;
+
+/** idCarrera es opcional: la carrera que estudia el usuario. */
+public record RegistroUsuarioCommand(String nombre, String correo, String contrasena, UUID idCarrera) {
 }

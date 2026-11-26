@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/registro").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/carreras").permitAll()
                         .anyRequest().authenticated())
                 // Sin token válido responde 401 para que el cliente cierre la sesión.
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

@@ -38,7 +38,8 @@ public class AuthController {
 
     @PostMapping("/registro")
     public ResponseEntity<UsuarioResponse> registrar(@Valid @RequestBody RegistroRequest request) {
-        Usuario usuario = registrar.registrar(new RegistroUsuarioCommand(request.nombre(), request.correo(), request.contrasena()));
+        Usuario usuario = registrar.registrar(new RegistroUsuarioCommand(request.nombre(), request.correo(),
+                request.contrasena(), request.idCarrera()));
         return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioResponse.de(usuario));
     }
 
@@ -54,11 +55,12 @@ public class AuthController {
     }
 
     public record RegistroRequest(@NotBlank @Size(max = 150) String nombre, @NotBlank @Email @Size(max = 255) String correo,
-                                  @NotBlank @Size(min = 8, max = 72) String contrasena) { }
+                                  @NotBlank @Size(min = 8, max = 72) String contrasena, UUID idCarrera) { }
     public record LoginRequest(@NotBlank @Email String correo, @NotBlank String contrasena) { }
-    public record UsuarioResponse(UUID id, String nombre, String correo, String rol, LocalDateTime fechaRegistro) {
+    public record UsuarioResponse(UUID id, String nombre, String correo, String rol, LocalDateTime fechaRegistro,
+                                  UUID idCarrera) {
         static UsuarioResponse de(Usuario u) {
-            return new UsuarioResponse(u.id(), u.nombre(), u.correo(), u.rol().nombre(), u.fechaRegistro());
+            return new UsuarioResponse(u.id(), u.nombre(), u.correo(), u.rol().nombre(), u.fechaRegistro(), u.idCarrera());
         }
     }
     public record TokenResponse(String accessToken, String tokenType) { }

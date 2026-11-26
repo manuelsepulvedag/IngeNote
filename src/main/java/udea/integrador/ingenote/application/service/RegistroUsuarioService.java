@@ -29,8 +29,11 @@ public class RegistroUsuarioService implements RegistrarUsuarioUseCase {
         if (usuarios.existePorCorreo(correo)) throw new ReglaDeNegocioException("El correo ya está registrado");
         Rol estudiante = usuarios.buscarRolPorNombre("ESTUDIANTE")
                 .orElseThrow(() -> new ReglaDeNegocioException("No existe el rol ESTUDIANTE"));
+        if (command.idCarrera() != null && !usuarios.existeCarrera(command.idCarrera())) {
+            throw new ReglaDeNegocioException("La carrera seleccionada no existe");
+        }
         Usuario usuario = new Usuario(null, estudiante, command.nombre().trim(), correo,
-                passwordCipher.cifrar(command.contrasena()), LocalDateTime.now());
+                passwordCipher.cifrar(command.contrasena()), LocalDateTime.now(), command.idCarrera());
         return usuarios.guardar(usuario);
     }
 }

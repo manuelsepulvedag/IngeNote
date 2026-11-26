@@ -10,9 +10,9 @@ public final class UsuarioPersistenceMapper {
     private UsuarioPersistenceMapper() { }
     public static Rol aDominio(RolJpaEntity entity) { return new Rol(entity.getId(), entity.getNombre()); }
     public static Usuario aDominio(UsuarioJpaEntity entity) {
-        return new Usuario(entity.getId(), aDominio(entity.getRol()), entity.getNombre(), entity.getCorreo(), entity.getContrasenaHash(), entity.getFechaRegistro());
+        return new Usuario(entity.getId(), aDominio(entity.getRol()), entity.getNombre(), entity.getCorreo(), entity.getContrasenaHash(), entity.getFechaRegistro(), entity.getIdCarrera());
     }
     public static UsuarioJpaEntity aEntidadNuevo(Usuario usuario, RolJpaEntity rol) {
-        return new UsuarioJpaEntity(rol, usuario.nombre(), usuario.correo(), usuario.contrasenaHash(), usuario.fechaRegistro());
+        return new UsuarioJpaEntity(rol, usuario.nombre(), usuario.correo(), usuario.contrasenaHash(), usuario.fechaRegistro(), usuario.idCarrera());
     }
 }

@@ -24,12 +24,16 @@ public class ForoController {
 
     record Texto(@NotBlank String contenido) { }
     record HiloRequest(@NotBlank String titulo, @NotBlank String contenido) { }
-    record Autor(UUID id, String nombre) { }
+    record Autor(UUID id, String nombre, UUID idCarrera) {
+        static Autor de(udea.integrador.ingenote.domain.model.Usuario u) {
+            return new Autor(u.id(), u.nombre(), u.idCarrera());
+        }
+    }
     record AsignaturaDto(UUID id, String nombre) { }
 
     record RespuestaDto(UUID id, UUID idHilo, Autor autor, String contenido, LocalDateTime fechaCreacion) {
         static RespuestaDto de(ForoRespuesta r) {
-            return new RespuestaDto(r.id(), r.hiloId(), new Autor(r.autor().id(), r.autor().nombre()),
+            return new RespuestaDto(r.id(), r.hiloId(), Autor.de(r.autor()),
                     r.contenido(), r.fechaCreacion());
         }
     }
@@ -38,7 +42,7 @@ public class ForoController {
                    AsignaturaDto asignatura, long cantidadRespuestas, UUID idRespuestaSolucion) {
         static HiloDto de(ForoHilo h, long respuestas) {
             return new HiloDto(h.id(), h.titulo(), h.contenido(), h.fechaCreacion(),
-                    new Autor(h.autor().id(), h.autor().nombre()),
+                    Autor.de(h.autor()),
                     new AsignaturaDto(h.asignatura().id(), h.asignatura().nombre()),
                     respuestas, h.idRespuestaSolucion());
         }

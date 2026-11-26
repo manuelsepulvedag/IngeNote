@@ -3,6 +3,8 @@ package udea.integrador.ingenote.infrastructure.adapter.out.persistence;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import udea.integrador.ingenote.domain.model.Asignatura;
+import udea.integrador.ingenote.domain.model.Carrera;
+import udea.integrador.ingenote.infrastructure.adapter.out.persistence.repository.CarreraSpringDataRepository;
 import udea.integrador.ingenote.domain.model.Recurso;
 import udea.integrador.ingenote.domain.model.TipoFormato;
 import udea.integrador.ingenote.domain.port.out.RecursoPersistencePort;
@@ -27,19 +29,31 @@ public class RecursoPersistenceAdapter implements RecursoPersistencePort {
     private final AsignaturaSpringDataRepository asignaturas;
     private final TipoFormatoSpringDataRepository tiposFormato;
     private final ValoracionSpringDataRepository valoraciones;
+    private final CarreraSpringDataRepository carreras;
 
     public RecursoPersistenceAdapter(
             RecursoSpringDataRepository recursos,
             UsuarioSpringDataRepository usuarios,
             AsignaturaSpringDataRepository asignaturas,
             TipoFormatoSpringDataRepository tiposFormato,
-            ValoracionSpringDataRepository valoraciones
+            ValoracionSpringDataRepository valoraciones,
+            CarreraSpringDataRepository carreras
     ) {
         this.recursos = recursos;
         this.usuarios = usuarios;
         this.asignaturas = asignaturas;
         this.tiposFormato = tiposFormato;
         this.valoraciones = valoraciones;
+        this.carreras = carreras;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Carrera> listarCarreras() {
+        return carreras.findAllByOrderByNombreAsc().stream()
+                .map(c -> new Carrera(c.getId(), c.getNombre(),
+                        c.getAsignaturas().stream().map(RecursoPersistenceMapper::aDominio).toList()))
+                .toList();
     }
 
     @Override
